@@ -1,0 +1,6 @@
+name             'kitchen-fish'
+maintainer       'Nathan L Smith'
+maintainer_email 'smith@chef.io'
+license          'apache2'
+description      'Generates a command line completion file for Test Kitchen'
+version          '0.1.0'

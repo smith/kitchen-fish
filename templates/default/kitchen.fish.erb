@@ -1,0 +1,42 @@
+# Fish Shell command-line completions for Test Kitchen
+
+function __fish_kitchen_no_command --description 'Test if kitchen has yet to be given the main command'
+  set -l cmd (commandline -opc)
+  test (count $cmd) -eq 1
+end
+
+function __fish_kitchen_using_command
+  set -l cmd (commandline -opc)
+  set -q cmd[2]; and test "$argv[1]" = $cmd[2]
+end
+
+function __fish_kitchen_using_command_and_no_subcommand
+  set -l cmd (commandline -opc)
+  test (count $cmd) -eq 2; and test "$argv[1]" = "$cmd[2]"
+end
+
+function __fish_kitchen_using_subcommand --argument-names cmd_main cmd_sub
+    set -l cmd (commandline -opc)
+    set -q cmd[3]; and test "$cmd_main" = $cmd[2] -a "$cmd_sub" = $cmd[3]
+end
+
+function __fish_kitchen_list
+    command kitchen list --bare
+end
+
+<% @commands.each do |cmd| %>
+
+# <%= cmd.name %> commands
+complete -c kitchen -f -n '__fish_kitchen_no_command' -a <%= cmd.name %> -d "<%= cmd.description %>"
+<% cmd.options.values.each do |option| %>
+complete -c kitchen -f -n '__fish_kitchen_using_command <%= cmd.name %>' <% if option.aliases && option.aliases.length > 0 %>-s "<%= option.aliases.first.gsub("-", "") %>"<% end %> -l "<%= option.name %>" -d "<%= option.description %>"
+<% end %>
+
+# <%= cmd.name %> help
+complete -c kitchen -f -n '__fish_kitchen_using_command help' -a <%= cmd.name %> -d "<%= cmd.description %>"
+<% if cmd.usage.match("INSTANCE|REGEXP") %>
+
+# <%= cmd.name %> instance-based commands
+complete -c kitchen -f -n '__fish_kitchen_using_command <%= cmd.name %>' -a '(__fish_kitchen_list)'
+<% end %>
+<% end %>
